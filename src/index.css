@@ -1,0 +1,78 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    @apply scroll-smooth;
+  }
+  body {
+    @apply bg-eco-50 text-slate-800 font-sans antialiased;
+  }
+  h1, h2, h3, h4 {
+    @apply font-display;
+  }
+}
+
+@layer components {
+  .container-page {
+    @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+  }
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-eco-600 px-5 py-2.5 text-sm font-semibold text-white shadow-soft transition-all hover:-translate-y-0.5 hover:bg-eco-700 hover:shadow-glow active:translate-y-0 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60;
+  }
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-full border border-eco-200 bg-white px-5 py-2.5 text-sm font-semibold text-eco-800 shadow-sm transition-all hover:-translate-y-0.5 hover:border-eco-300 hover:bg-eco-50 active:translate-y-0 active:scale-[0.98];
+  }
+  .btn-accent {
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-clay-500 px-5 py-2.5 text-sm font-semibold text-white shadow-soft transition-all hover:-translate-y-0.5 hover:bg-clay-600 active:translate-y-0 active:scale-[0.98];
+  }
+  .card {
+    @apply rounded-3xl border border-eco-900/[0.06] bg-white shadow-[0_1px_2px_rgb(6_44_31_/_0.04),0_8px_24px_-12px_rgb(6_44_31_/_0.08)] transition-all;
+  }
+  .card-hover {
+    @apply hover:-translate-y-1 hover:border-eco-200 hover:shadow-[0_1px_2px_rgb(6_44_31_/_0.04),0_20px_40px_-16px_rgb(34_176_119_/_0.25)];
+  }
+  .input-base {
+    @apply w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-eco-500 focus:ring-2 focus:ring-eco-100;
+  }
+  .badge {
+    @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold;
+  }
+  .section-eyebrow {
+    @apply inline-flex items-center gap-2 rounded-full border border-eco-200 bg-eco-50 px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider text-eco-700;
+  }
+  .glass {
+    @apply bg-white/70 backdrop-blur-xl backdrop-saturate-150;
+  }
+  .icon-tile {
+    @apply flex shrink-0 items-center justify-center rounded-2xl;
+  }
+}
+
+.leaflet-container {
+  height: 100%;
+  width: 100%;
+  z-index: 0;
+}
+
+/* Textura sutil de "papel reciclado" usada em seções de destaque */
+.paper-grain {
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.09) 1px, transparent 1px);
+  background-size: 14px 14px;
+}
+
+/* Animaçao simples para status */
+.status-enter {
+  animation: fadeSlide 0.35s ease-out;
+}
+@keyframes fadeSlide {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
