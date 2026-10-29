@@ -2,10 +2,14 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
   type ReactNode,
 } from "react";
+import { doc, updateDoc, increment } from "firebase/firestore";
+import { db } from "../lib/firebase";
+import { useAuth, type UserProfile } from "./AuthContext";
 import type {
   Campaign,
   EcoTrocaItem,
@@ -35,24 +39,46 @@ interface EcoContextValue {
 
 const EcoContext = createContext<EcoContextValue | null>(null);
 
-const seedUser: Profile = {
-  id: "u1",
-  fullName: "Sofia Amazonense",
-  initials: "SA",
+function profileFromAuth(p: UserProfile): Profile {
+  return {
+    id: p.uid,
+    fullName: p.fullName,
+    initials: p.initials,
+    role: p.role,
+    neighborhood: p.neighborhood,
+    points: p.points,
+  };
+}
+
+const fallbackUser: Profile = {
+  id: "guest",
+  fullName: "Visitante",
+  initials: "V",
   role: "citizen",
-  neighborhood: "Adrianópolis",
-  points: 350,
+  neighborhood: "Centro",
+  points: 0,
 };
 
 let toastId = 0;
 
 export function EcoProvider({ children }: { children: ReactNode }) {
-  const [currentUser, setCurrentUser] = useState<Profile>(seedUser);
+  const { profile } = useAuth();
+
+  const [currentUser, setCurrentUser] = useState<Profile>(
+    profile ? profileFromAuth(profile) : fallbackUser,
+  );
   const [reports, setReports] = useState<EnvironmentalReport[]>(initialReports);
   const [items, setItems] = useState<EcoTrocaItem[]>(seedItems);
   const [campaigns] = useState<Campaign[]>(seedCampaigns);
   const [joinedCampaigns, setJoinedCampaigns] = useState<string[]>([]);
   const [toasts, setToasts] = useState<{ id: number; message: string }[]>([]);
+
+  /* Sync profile from auth into local state */
+  useEffect(() => {
+    if (profile) {
+      setCurrentUser(profileFromAuth(profile));
+    }
+  }, [profile]);
 
   const notify = useCallback((message: string) => {
     const id = ++toastId;
@@ -65,11 +91,16 @@ export function EcoProvider({ children }: { children: ReactNode }) {
   const addPoints = useCallback(
     (amount: number, reason: string) => {
       setCurrentUser((u) => ({ ...u, points: u.points + amount }));
-      notify(
-        `+${amount} EcoPontos · ${reason}`
-      );
+
+      // Persist to Firestore
+      if (profile) {
+        const ref = doc(db, "users", profile.uid);
+        updateDoc(ref, { points: increment(amount) }).catch(console.error);
+      }
+
+      notify(`+${amount} EcoPontos · ${reason}`);
     },
-    [notify],
+    [notify, profile],
   );
 
   const addReport = useCallback(

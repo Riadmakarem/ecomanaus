@@ -29,3 +29,9 @@ bun-debug.log*
 .env
 .env.*
 !.env.example
+
+# Agent skills (instaladas localmente via `skills add`)
+.agents/
+.claude/
+agent/
+skills-lock.json

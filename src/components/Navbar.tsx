@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import {
   Menu,
   X,
@@ -12,8 +12,11 @@ import {
   LayoutDashboard,
   User,
   Coins,
+  LogIn,
+  LogOut,
 } from "lucide-react";
 import { useEco } from "../context/EcoContext";
+import { useAuth } from "../context/AuthContext";
 import { Logo } from "./Logo";
 
 const links = [
@@ -31,6 +34,8 @@ export function Navbar() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { currentUser } = useEco();
+  const { user, profile, logout } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -38,6 +43,12 @@ export function Navbar() {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  const handleLogout = async () => {
+    await logout();
+    setOpen(false);
+    navigate("/");
+  };
 
   return (
     <div className="sticky top-0 z-40 px-3 pt-3 sm:px-4">
@@ -70,10 +81,42 @@ export function Navbar() {
         </nav>
 
         <div className="flex items-center gap-2.5">
-          <span className="hidden items-center gap-1.5 rounded-full bg-gradient-to-r from-clay-500 to-clay-400 px-3.5 py-2 text-sm font-bold text-white shadow-soft sm:flex">
-            <Coins className="h-4 w-4" />
-            {currentUser.points.toLocaleString("pt-BR")}
-          </span>
+          {user ? (
+            <>
+              <span className="hidden items-center gap-1.5 rounded-full bg-gradient-to-r from-clay-500 to-clay-400 px-3.5 py-2 text-sm font-bold text-white shadow-soft sm:flex">
+                <Coins className="h-4 w-4" />
+                {currentUser.points.toLocaleString("pt-BR")}
+              </span>
+              {profile?.photoURL ? (
+                <img
+                  src={profile.photoURL}
+                  alt={profile.fullName}
+                  className="hidden h-8 w-8 rounded-full border-2 border-eco-200 sm:block"
+                  referrerPolicy="no-referrer"
+                />
+              ) : (
+                <span className="hidden h-8 w-8 items-center justify-center rounded-full bg-eco-600 text-xs font-bold text-white sm:flex">
+                  {profile?.initials ?? "U"}
+                </span>
+              )}
+              <button
+                onClick={handleLogout}
+                className="hidden items-center gap-1.5 rounded-full px-3 py-2 text-[13px] font-semibold text-eco-900/70 transition hover:bg-eco-950/5 hover:text-eco-900 sm:flex"
+                title="Sair"
+              >
+                <LogOut className="h-3.5 w-3.5" />
+                Sair
+              </button>
+            </>
+          ) : (
+            <Link
+              to="/login"
+              className="flex items-center gap-1.5 rounded-full bg-eco-600 px-4 py-2 text-sm font-bold text-white shadow-soft transition hover:bg-eco-700"
+            >
+              <LogIn className="h-4 w-4" />
+              Entrar
+            </Link>
+          )}
           <button
             className="flex h-10 w-10 items-center justify-center rounded-full border border-eco-900/10 bg-white text-eco-800 lg:hidden"
             onClick={() => setOpen((v) => !v)}
@@ -87,10 +130,12 @@ export function Navbar() {
 
       {open && (
         <nav className="glass container-page mt-2 max-w-7xl rounded-3xl border border-white/60 p-3 shadow-[0_8px_30px_-10px_rgb(6_44_31_/_0.25)] lg:hidden">
-          <div className="mb-2 flex items-center gap-2 rounded-2xl bg-gradient-to-r from-clay-500 to-clay-400 px-3.5 py-2.5 text-sm font-bold text-white">
-            <Coins className="h-4 w-4" />
-            {currentUser.points.toLocaleString("pt-BR")} EcoPontos
-          </div>
+          {user && (
+            <div className="mb-2 flex items-center gap-2 rounded-2xl bg-gradient-to-r from-clay-500 to-clay-400 px-3.5 py-2.5 text-sm font-bold text-white">
+              <Coins className="h-4 w-4" />
+              {currentUser.points.toLocaleString("pt-BR")} EcoPontos
+            </div>
+          )}
           <div className="grid grid-cols-1 gap-1">
             {links.map(({ to, label, icon: Icon }) => (
               <NavLink
@@ -109,6 +154,24 @@ export function Navbar() {
                 {label}
               </NavLink>
             ))}
+            {user ? (
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50"
+              >
+                <LogOut className="h-4 w-4" />
+                Sair
+              </button>
+            ) : (
+              <NavLink
+                to="/login"
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-2 rounded-xl bg-eco-600 px-3 py-2.5 text-sm font-bold text-white"
+              >
+                <LogIn className="h-4 w-4" />
+                Entrar
+              </NavLink>
+            )}
           </div>
         </nav>
       )}

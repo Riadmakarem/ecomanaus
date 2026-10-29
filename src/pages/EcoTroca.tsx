@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { Recycle, MapPin, Heart, X, CheckCircle2, MessageCircle } from "lucide-react";
 import { PageHeader, CategoryPill, EmptyState } from "../components/ui";
 import { useEco } from "../context/EcoContext";
+import { trocaArt } from "../lib/trocaArt";
 import {
   NEIGHBORHOODS,
   TROCA_LABELS,
@@ -17,21 +18,6 @@ const FILTERS: { value: "todos" | TrocaCategory; label: string }[] = [
   { value: "materiais_escolares", label: "Materiais Escolares" },
   { value: "outros", label: "Outros" },
 ];
-
-const DONATION_ART = [
-  "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=900&q=70",
-  "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=900&q=70",
-  "https://images.unsplash.com/photo-1522199755839-a2bacb67c546?w=900&q=70",
-  "https://images.unsplash.com/photo-1525507119028-ed4c629a60a3?w=900&q=70",
-  "https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=900&q=70",
-  "https://images.unsplash.com/photo-1598008916843-b2d5edb315ec?w=900&q=70",
-  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=900&q=70",
-  "https://images.unsplash.com/photo-1511192336575-5a79af67a629?w=900&q=70",
-];
-
-function fallbackArt(i: number) {
-  return DONATION_ART[i % DONATION_ART.length];
-}
 
 export function EcoTroca() {
   const { items, reserveItem, addPoints } = useEco();
@@ -91,9 +77,12 @@ export function EcoTroca() {
               <div key={item.id} className="card flex flex-col overflow-hidden">
                 <div className="relative h-44">
                   <img
-                    src={item.photoUrl || fallbackArt(idx)}
+                    src={trocaArt(item.category, idx)}
                     alt={item.title}
                     className="h-full w-full object-cover"
+                    onError={(e) => {
+                      e.currentTarget.src = trocaArt(item.category, idx);
+                    }}
                   />
                   <span className="badge absolute left-3 top-3 bg-white/95 text-eco-800 shadow-sm">
                     {TROCA_LABELS[item.category]}
